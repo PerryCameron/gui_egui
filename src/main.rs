@@ -35,6 +35,11 @@ fn radio_select(s: &Enum, i: u16) -> bool {
     }
 }
 
+fn check_select(b: bool) -> bool {
+    if b { false }
+    else { true }
+}
+
 fn radio_text(s: &Enum) -> String {
     match s {
         Enum::First => String::from("First"),
@@ -74,15 +79,12 @@ impl eframe::App for MyApp {
 
             if ui.add(egui::RadioButton::new(radio_select(&self.radio_position,1), "First")).clicked() {
                 self.radio_position = Enum::First;
-                println!("{:?} Clicked",&self.radio_position);
             }
             if ui.add(egui::RadioButton::new(radio_select(&self.radio_position,2), "Second")).clicked() {
                 self.radio_position = Enum::Second;
-                println!("{:?} Clicked",&self.radio_position);
             }
             if ui.add(egui::RadioButton::new(radio_select(&self.radio_position,3), "Third")).clicked() {
                 self.radio_position = Enum::Third;
-                println!("{:?} Clicked",&self.radio_position);
             }
 
             ui.separator();
@@ -102,11 +104,9 @@ impl eframe::App for MyApp {
             ui.spinner();
             ui.separator();
             if ui.add(egui::Checkbox::new(&mut self.happy, "Checked")).clicked() {
-                if self.happy == true { self.happy = false; }
-                else { self.happy = true; }
+                check_select(self.happy);
                 println!("I am happy= {}",self.happy);
             }
-
         });
     }
 }
