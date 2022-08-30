@@ -2,6 +2,12 @@
 
 use eframe::egui;
 
+
+const STRING_OPTIONS: [&str; 16] = [
+    "Option 1", "Option 2", "Option 3", "Option 4", "Option 5", "Option 6", "Option 7", "Option 8",
+    "Option 9", "Option 10", "Option 11", "Option 12", "Option 13", "Option 14", "Option 15", "Option 16",
+];
+
 fn main() {
     let options = eframe::NativeOptions::default();
     eframe::run_native(
@@ -15,6 +21,7 @@ struct MyApp {
     name: String,
     age: u32,
     radio_position: Enum,
+    string_option: String,
     happy: bool,
 }
 
@@ -54,6 +61,7 @@ impl Default for MyApp {
             name: "Arthur".to_owned(),
             age: 42,
             radio_position: Enum::First,
+            string_option: String::from(""),
             happy: true,
         }
     }
@@ -76,37 +84,67 @@ impl eframe::App for MyApp {
                 }
             });
             ui.separator();
-
-            if ui.add(egui::RadioButton::new(radio_select(&self.radio_position,1), "First")).clicked() {
-                self.radio_position = Enum::First;
-            }
-            if ui.add(egui::RadioButton::new(radio_select(&self.radio_position,2), "Second")).clicked() {
-                self.radio_position = Enum::Second;
-            }
-            if ui.add(egui::RadioButton::new(radio_select(&self.radio_position,3), "Third")).clicked() {
-                self.radio_position = Enum::Third;
-            }
-
+            ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
+                if ui.add(egui::RadioButton::new(radio_select(&self.radio_position, 1), "First")).clicked() {
+                    self.radio_position = Enum::First;
+                }
+                if ui.add(egui::RadioButton::new(radio_select(&self.radio_position, 2), "Second")).clicked() {
+                    self.radio_position = Enum::Second;
+                }
+                if ui.add(egui::RadioButton::new(radio_select(&self.radio_position, 3), "Third")).clicked() {
+                    self.radio_position = Enum::Third;
+                }
+            });
             ui.separator();
             ui.horizontal(|ui| {
+                ui.spacing_mut().item_spacing.x = 2.0; // remove spacing between widgets
                 ui.label("Radio Selected: ");
+                ui.text_edit_singleline(&mut radio_text(&self.radio_position));
                 ui.text_edit_singleline(&mut radio_text(&self.radio_position));
             });
             ui.separator();
             ui.add(egui::Slider::new(&mut self.age, 0..=120).text("age"));
             ui.separator();
-            if ui.button("Click each year").clicked() {
-                self.age += 1;
-            }
+            ui.horizontal(|ui| {
+                if ui.button("Add 1 to year").clicked() {
+                    self.age += 1;
+                }
+                if ui.button("Add 2 to year").clicked() {
+                    self.age += 2;
+                }
+
+                // lets throw a combobox in here for the hell of it
+                egui::ComboBox::from_label(format!(
+                    "Currently selected string: {}",
+                    self.string_option
+                ))
+                    .selected_text(self.string_option.clone())
+                    .show_ui(ui, |ui| {
+                        for option in STRING_OPTIONS {
+                            // Selectable values can be anything: enums, strings or integers - as long as they can be compared and have a text repersentation
+                            ui.selectable_value(&mut self.string_option, option.into(), option);
+                        }
+                    });
+
+            });
             ui.separator();
             ui.label(format!("Hello '{}', age {}", self.name, self.age));
-            ui.separator();
-            ui.spinner();
+            // ui.separator();
+            // ui.spinner();
             ui.separator();
             if ui.add(egui::Checkbox::new(&mut self.happy, "Checked")).clicked() {
                 check_select(self.happy);
                 println!("I am happy= {}",self.happy);
             }
+            ui.separator();
+            ui.hyperlink("https://eaglecreeksailing.com");
+            ui.separator();
+            let mut my_f32:f32 = 2.0;
+            ui.collapsing("Click to see what is hidden!", |ui| {
+                ui.label("Not much, as it turns out");
+                ui.add(egui::DragValue::new(&mut my_f32).speed(0.1));
+            });
+            ui.separator();
         });
     }
 }
